@@ -15,7 +15,7 @@ def text_to_speech(text):
     tts.write_to_fp(sound_file)
     return sound_file.getvalue()
 
-# [개선] 라이트 모드/다크 모드 모두에서 글자가 선명하게 보이는 스타일
+# 선명하고 가독성 좋은 스타일
 st.markdown("""
 <style>
     .kr-box { 
@@ -46,6 +46,7 @@ st.markdown("""
         margin: 8px 0;
         font-size: 13px;
         color: #854d0e !important;
+        line-height: 1.6;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -99,15 +100,18 @@ system_instruction = f"""
 (학습자가 한 말을 더 세련된 미국식 표현으로 다듬은 1문장 및 칭찬)
 
 [🎯 이렇게 대답해 보세요]
-(학습자가 막힐 때 바로 쓸 수 있는 추천 답변 1~2문장)
+(학습자가 바로 써먹을 수 있는 추천 영어 답변 1~2문장과 한국어 뜻을 반드시 괄호 안에 병기할 것)
+예시:
+- Definitely catching up on some sleep! (무조건 밀린 잠부터 푹 자려고요!)
+- I'm planning to binge-watch a new series. (새 시리즈 정주행할 계획이에요.)
 """
 
-# 초기 인사 세팅
+# 초기 인사 세팅 (한국어 해석 포함)
 initial_greetings = {
-    "1:1 영어 수업 스몰토크": "[English]\nHey there! So good to see you! How's your week going? Doing anything fun lately?\n[한글 해석]\n안녕! 만나서 정말 반가워요! 이번 주 어떻게 보내고 있어요? 요즘 재미있는 일 있었어요?\n[💡 Alex의 교정 팁]\n수업 시작할 때 \"How's your week going?\"이라고 되물어보면 대화가 아주 자연스러워져요!\n[🎯 이렇게 대답해 보세요]\n- Pretty good, just surviving on coffee!\n- Not much, just took it easy this week.",
-    "주말 계획 & 넷플릭스/취미 수다": "[English]\nTGIF! Any big plans for the weekend, or are you just gonna Netflix and chill?\n[한글 해석]\n드디어 주말이네요! 이번 주말에 특별한 계획 있어요, 아니면 집에서 넷플릭스 보며 쉴 건가요?\n[💡 Alex의 교정 팁]\n\"TGIF\"는 'Thanks God It's Friday(불금이다!)'의 흔한 슬랭이에요!\n[🎯 이렇게 대답해 보세요]\n- Definitely catching up on some sleep!\n- I'm planning to binge-watch a new series on Netflix.",
-    "미국 카페 & 음식점 주문하기": "[English]\nHi there! Welcome to Blue Bottle. What can I get started for you today?\n[한글 해석]\n안녕하세요! 블루보틀에 오신 걸 환영해요. 오늘 어떤 걸로 주문 도와드릴까요?\n[💡 Alex의 교정 팁]\n점원이 \"What can I get started for you?\"라고 하면 바로 원하는 음료를 말하면 돼요.\n[🎯 이렇게 대답해 보세요]\n- Can I get an iced vanilla latte with oat milk, please?\n- Just a hot Americano to go, thanks!",
-    "컴플라이언스 미팅 전 가벼운 스몰토크": "[English]\nMorning! Thanks for joining early. How's everything on your end before we dive into the audit agenda?\n[한글 해석]\n좋은 아침이에요! 일찍 들어와 주셔서 감사해요. 감사 안건 들어가기 전에 그쪽 상황은 좀 어떠신가요?\n[💡 Alex의 교정 팁]\n본격적인 미팅 전 \"How's everything on your end?\"는 비즈니스 스몰토크의 정석이에요.\n[🎯 이렇게 대답해 보세요]\n- Can't complain! Just wrapped up the preliminary review.\n- Things are a bit busy, but all good here."
+    "1:1 영어 수업 스몰토크": "[English]\nHey there! So good to see you! How's your week going? Doing anything fun lately?\n[한글 해석]\n안녕! 만나서 정말 반가워요! 이번 주 어떻게 보내고 있어요? 요즘 재미있는 일 있었어요?\n[💡 Alex의 교정 팁]\n수업 시작할 때 \"How's your week going?\"이라고 되물어보면 대화가 아주 자연스러워져요!\n[🎯 이렇게 대답해 보세요]\n• Pretty good, just surviving on coffee! (꽤 좋아요, 그냥 커피 힘으로 버티는 중이에요!)\n• Not much, just took it easy this week. (별거 없어요, 이번 주는 그냥 편하게 쉬었어요.)",
+    "주말 계획 & 넷플릭스/취미 수다": "[English]\nTGIF! Any big plans for the weekend, or are you just gonna Netflix and chill?\n[한글 해석]\n드디어 주말이네요! 이번 주말에 특별한 계획 있어요, 아니면 집에서 넷플릭스 보며 쉴 건가요?\n[💡 Alex의 교정 팁]\n\"TGIF\"는 'Thanks God It's Friday(불금이다!)'의 흔한 슬랭이에요!\n[🎯 이렇게 대답해 보세요]\n• Definitely catching up on some sleep! (무조건 밀린 잠부터 푹 자려고요!)\n• I'm planning to binge-watch a new series on Netflix. (넷플릭스 신작 시리즈 몰아볼 계획이에요.)",
+    "미국 카페 & 음식점 주문하기": "[English]\nHi there! Welcome to Blue Bottle. What can I get started for you today?\n[한글 해석]\n안녕하세요! 블루보틀에 오신 걸 환영해요. 오늘 어떤 걸로 주문 도와드릴까요?\n[💡 Alex의 교정 팁]\n점원이 \"What can I get started for you?\"라고 하면 바로 원하는 음료를 말하면 돼요.\n[🎯 이렇게 대답해 보세요]\n• Can I get an iced vanilla latte with oat milk, please? (아이스 바닐라 라떼 오트 밀크로 한 잔 주시겠어요?)\n• Just a hot Americano to go, thanks! (따뜻한 아메리카노 테이크아웃 한 잔이요, 감사합니다!)",
+    "컴플라이언스 미팅 전 가벼운 스몰토크": "[English]\nMorning! Thanks for joining early. How's everything on your end before we dive into the audit agenda?\n[한글 해석]\n좋은 아침이에요! 일찍 들어와 주셔서 감사해요. 감사 안건 들어가기 전에 그쪽 상황은 좀 어떠신가요?\n[💡 Alex의 교정 팁]\n본격적인 미팅 전 \"How's everything on your end?\"는 비즈니스 스몰토크의 정석이에요.\n[🎯 이렇게 대답해 보세요]\n• Can't complain! Just wrapped up the preliminary review. (더할 나위 없죠! 방금 사전 검토 마무리했어요.)\n• Things are a bit busy, but all good here. (조금 바쁘긴 한데, 이쪽은 다 순조롭습니다.)"
 }
 
 if "messages" not in st.session_state or len(st.session_state.messages) == 0:
