@@ -46,11 +46,11 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 TOPICS = [
-    # 💼 리걸 & 컴플라이언스 이직 면접 특화 (최상단 배치)
-    "🎯 [면접] 1분 자기소개 & 주요 경력 브리핑",
-    "⚖️ [면접] 사업부와의 갈등 및 규제 리스크 설득 경험",
-    "🔍 [면접] 실효성 있는 컴플라이언스 프로그램 구축 경험",
-    "❓ [면접] 면접관에게 역질문하기 (전략적 마무리)",
+    # 💼 법무 & 컴플라이언스 '통합 이직 면접' 특화 (최상단)
+    "🎯 [면접] 법무 & 컴플라이언스 융합형 1분 자기소개",
+    "⚖️ [면접] Deal-maker(법무) vs Gatekeeper(컴플라이언스) 역할 충돌 조율",
+    "🔍 [면접] 계약 검토(법무)와 규제 준수(컴플라이언스) 동시 해결 사례",
+    "⏳ [면접] 급한 계약 검토와 컴플라이언스 모니터링 우선순위 배분",
 
     # ⚖️ 법무 & 컴플라이언스 실무
     "📜 해외 로펌(외부 변호사)과 자문 킥오프 미팅",
@@ -84,14 +84,14 @@ TOPICS = [
 ]
 
 INITIAL_GREETINGS = {
-    # 이직 면접 4개
-    "🎯 [면접] 1분 자기소개 & 주요 경력 브리핑": "[English]\nThanks for taking the time to meet with us today! To kick things off, could you briefly walk us through your legal and compliance background, highlighting a key achievement?\n[한글 해석]\n오늘 시간 내어 면접에 참석해 주셔서 감사합니다! 시작하기에 앞서, 법무 및 컴플라이언스 경력과 대표적인 성과를 간략히 소개해 주시겠어요?\n[💡 Alex의 교정 팁]\n면접 첫인사에서는 단순 연대기식 나열보다 '리스크를 관리하면서도 사업 성장을 지원하는 인하우스 법무/컴플라이언스 전문가'라는 한 줄 정의로 시작하면 아주 강렬해요!\n[🎯 이렇게 대답해 보세요]\n• I have over [X] years of experience managing contract negotiations and regulatory compliance. (저는 [X]년 이상 계약 협상과 규제 컴플라이언스를 관리해 온 경험이 있습니다.)\n• My core strength is acting as a business enabler by offering viable legal workarounds. (제 핵심 강점은 실현 가능한 법적 대안을 제시하여 비즈니스를 지원하는 파트너 역할을 하는 것입니다.)",
+    # 💼 법무 & 컴플라이언스 통합 면접 4개
+    "🎯 [면접] 법무 & 컴플라이언스 융합형 1분 자기소개": "[English]\nWelcome! We noticed on your resume that you wear both hats—leading corporate legal and compliance. Could you give us an overview of how you create synergy between the two roles?\n[한글 해석]\n환영합니다! 이력서를 보니 기업 법무와 컴플라이언스 두 역할을 모두 총괄하고 계시네요. 이 두 영역 간에 어떻게 시너지를 창출하시는지 전반적으로 소개해 주시겠어요?\n[💡 Alex의 교정 팁]\n'Wear both hats(두 가지 역할을 동시에 맡다)'라는 표현을 살려서 \"법무를 통한 사후 리스크 방어와 컴플라이언스를 통한 사전 예방을 융합하는 실무자\"라고 포지셔닝하면 면접관에게 엄청난 신뢰를 줍니다!\n[🎯 이렇게 대답해 보세요]\n• Wearing both hats allows me to protect the company legally while proactively instilling a culture of compliance. (두 역할을 모두 맡음으로써 회사를 법적으로 방어하는 동시에 사전 예방적 컴플라이언스 문화를 선제적으로 구축할 수 있습니다.)\n• My strength is providing a 360-degree risk assessment, covering both contract terms and regulatory frameworks. (제 강점은 계약 조항과 규제 체계를 아우르는 360도 전방위 리스크 평가를 제공하는 것입니다.)",
 
-    "⚖️ [면접] 사업부와의 갈등 및 규제 리스크 설득 경험": "[English]\nIn compliance, business units often feel legal is slowing them down. Tell me about a time you had to push back on a high-risk commercial proposal and how you handled it.\n[한글 해석]\n컴플라이언스 업무 특성상 사업부에서는 법무가 속도를 늦춘다고 느낄 때가 많죠. 리스크가 큰 사업적 제안에 제동을 걸어야 했던 경험과 이를 어떻게 조율하셨는지 말씀해 주시겠어요?\n[💡 Alex의 교정 팁]\n이 질문에서는 '무조건 안 된다고 규정을 내세웠다'가 아니라 '사업부의 매출 목표를 존중하되, 회사의 법적 노출(Exposure)을 최소화하는 대안을 함께 찾았다'는 뉘앙스가 합격 포인트예요!\n[🎯 이렇게 대답해 보세요]\n• Instead of a flat refusal, I helped them restructure the deal to stay compliant while hitting their target. (단순히 거절하는 대신, 규제를 준수하면서도 목표를 달성할 수 있도록 거래 구조를 재설계하도록 도왔습니다.)\n• I sat down with the stakeholders and clearly laid out the potential regulatory fines versus our alternative path. (이해관계자들과 마주 앉아 잠재적 과징금 리스크와 우리가 취할 수 있는 대안 경로를 명확히 설명했습니다.)",
+    "⚖️ [면접] Deal-maker(법무) vs Gatekeeper(컴플라이언스) 역할 충돌 조율": "[English]\nIn-house legal often acts as a deal-maker helping the business grow, while compliance acts as a gatekeeper. How do you handle situations where these two mandates clash?\n[한글 해석]\n사내 법무는 비즈니스 성장을 돕는 파트너(Deal-maker) 역할을 하지만, 컴플라이언스는 원칙을 지키는 문지기(Gatekeeper) 역할을 하죠. 이 두 가지 사명이 충돌할 때 어떻게 조율하시나요?\n[💡 Alex의 교정 팁]\n외국계 법무/컴플라이언스 면접의 핵심 단골 질문입니다! \"I don't see them as contradictory, but rather as risk-based commercial enablement\"(모순이 아니라 리스크 기반의 비즈니스 지원)이라는 프레임을 잡으세요.\n[🎯 이렇게 대답해 보세요]\n• I see compliance not as a road block, but as guardrails that allow the business to run faster safely. (컴플라이언스를 방해물이 아니라, 비즈니스가 안전하게 더 빨리 달릴 수 있게 돕는 가드레일로 봅니다.)\n• When conflicts arise, I help the business explore alternative structures to achieve their commercial goals within legal boundaries. (충돌이 생길 때는 법적 테두리 안에서 사업 목표를 달성할 수 있도록 거래 구조의 대안을 함께 모색합니다.)",
 
-    "🔍 [면접] 실효성 있는 컴플라이언스 프로그램 구축 경험": "[English]\nMany companies struggle with compliance being just a 'tick-the-box' exercise. How do you design and enforce policies that employees actually follow in their daily work?\n[한글 해석]\n많은 기업에서 컴플라이언스가 단순한 '형식적 체크리스트(Tick-the-box)'에 그쳐 어려움을 겪습니다. 임직원들이 실제 일상 업무에서 준수하도록 만드는 정책을 어떻게 설계하고 실행하시나요?\n[💡 Alex의 교정 팁]\n'Tick-the-box(형식적인 절차)'라는 표현을 쓰며 '임직원 눈높이에 맞춘 실무 교육'과 '자유롭게 리포팅할 수 있는 Speak-up 문화'를 언급하면 글로벌 스탠다드 감각을 인정받습니다.\n[🎯 이렇게 대답해 보세요]\n• I focus on translating complex regulations into plain language and actionable dos-and-don'ts. (어려운 규제를 쉬운 언어로 바꾸고 실무에서 바로 적용할 수 있는 수칙으로 전환하는 데 집중합니다.)\n• Establishing an accessible speak-up channel without fear of retaliation is critical. (보복에 대한 두려움 없이 문제를 제기할 수 있는 접근성 높은 채널을 구축하는 것이 핵심입니다.)",
+    "🔍 [면접] 계약 검토(법무)와 규제 준수(컴플라이언스) 동시 해결 사례": "[English]\nCould you walk us through a specific deal or project where you had to resolve high-stakes contract negotiations alongside strict regulatory compliance?\n[한글 해석]\n치열한 계약 조건 협상과 엄격한 규제 준수를 동시에 해결해야 했던 구체적인 프로젝트나 거래 사례를 말씀해 주시겠어요?\n[💡 Alex의 교정 팁]\nSTAR 기법(Situation-Task-Action-Result)을 쓰되, \"계약서상 책임 조항(Indemnity)을 방어하면서도 당국의 규제 가이드라인을 충족시켰다\"는 양면 성과를 보여주는 것이 핵심입니다.\n[🎯 이렇게 대답해 보세요]\n• In a major cross-border deal, I negotiated favorable liability caps while ensuring full alignment with local antitrust rules. (주요 크로스보더 딜에서 현지 반독점 규제에 완벽히 부합하도록 조율하면서도 유리한 책임 한도 조항을 협상해 냈습니다.)\n• By conducting dual-track legal review and compliance due diligence, we closed the transaction with zero regulatory exposure. (법무 검토와 컴플라이언스 실사를 병행(Dual-track)하여 규제 리스크 없이 거래를 성공적으로 클로징했습니다.)",
 
-    "❓ [면접] 면접관에게 역질문하기 (전략적 마무리)": "[English]\nWe've covered a lot of ground today, and I appreciate your thoughtful answers. Do you have any questions for us regarding the legal team culture or the company's roadmap?\n[한글 해석]\n오늘 많은 이야기를 나눴네요. 진솔한 답변 감사드립니다. 저희 법무팀 문화나 회사의 향후 로드맵에 대해 궁금하신 점이 있으신가요?\n[💡 Alex의 교정 팁]\n면접 마지막 역질문에서는 복지나 근무시간 대신 '회사의 글로벌 확장 시 직면한 핵심 규제 과제'나 '법무팀과 경영진 간의 소통 방식'을 물어보면 프로다운 인상을 남길 수 있어요!\n[🎯 이렇게 대답해 보세요]\n• What is the biggest regulatory challenge the legal team is prioritizing for the upcoming year? (향후 1년간 법무팀에서 가장 우선순위로 두고 있는 규제 과제는 무엇인가요?)\n• How does the executive team perceive the role of compliance—as a risk controller or a strategic advisor? (경영진은 컴플라이언스의 역할을 단순 리스크 통제자로 보나요, 아니면 전략적 조언자로 보나요?)",
+    "⏳ [면접] 급한 계약 검토와 컴플라이언스 모니터링 우선순위 배분": "[English]\nWhen business teams demand same-day contract turnarounds, how do you ensure ongoing compliance audits and routine governance don't take a backseat?\n[한글 해석]\n사업부에서 당일 계약 검토를 다급하게 요구할 때, 진행 중인 컴플라이언스 감사나 일상적인 거버넌스 업무가 뒤로 밀리지 않도록 어떻게 우선순위를 관리하시나요?\n[💡 Alex의 교정 팁]\n'Take a backseat(뒷전으로 밀리다)'에 대해 \"위험도 기반 트리아지(Risk-based Triage: 리스크 크기에 따라 긴급도를 분류하는 방식)\"와 \"표준 계약 템플릿을 통한 일상 업무 효율화\"를 언급하면 시니어 레벨의 역량이 증명됩니다.\n[🎯 이렇게 대답해 보세요]\n• I use a risk-based triage system to categorize urgent commercial needs versus core regulatory deadlines. (긴급한 상업적 니즈와 핵심 규제 마감기한을 위험도에 따라 분류(Triage)하여 관리합니다.)\n• I empower business units with standardized contract templates, freeing up my time for strategic compliance oversight. (표준 계약 템플릿으로 사업부의 자율성을 높여, 전략적 컴플라이언스 모니터링에 집중할 시간을 확보합니다.)",
 
     # 법무 실무
     "📜 해외 로펌(외부 변호사)과 자문 킥오프 미팅": "[English]\nHi Min, thanks for reaching out. We received your background memo. Could you walk us through the main legal concerns from your end?\n[한글 해석]\n안녕하세요 Min 담당자님, 연락 주셔서 감사합니다. 보내주신 배경 설명 메모 잘 받았습니다. 귀사 측에서 가장 우려하시는 주요 법적 쟁점을 간단히 설명해 주시겠어요?\n[💡 Alex의 교정 팁]\n외부 로펌과의 통화에서는 복잡한 문장 대신 \"Our main concern is liability exposure\"처럼 핵심 쟁점부터 두괄식으로 말하면 아주 프로페셔널해요!\n[🎯 이렇게 대답해 보세요]\n• Our main concern is the indemnification clause and potential liability. (저희의 주된 우려는 면책 조항과 잠재적 배상 책임 범위입니다.)\n• We need a quick risk assessment on local regulatory compliance. (현지 규제 컴플라이언스에 관한 빠른 리스크 평가가 필요합니다.)",
@@ -198,12 +198,12 @@ CANDIDATE_MODELS = ["gemini-3.5-flash-lite", "gemini-3.8-flash", "gemini-3.7-fla
 
 system_instruction = f"""
 당신은 센스 있고 유쾌한 30대 미국인 튜터/대화 상대/면접관 'Alex'입니다.
-학습자는 한국 대기업/글로벌 기업의 법무팀 및 컴플라이언스 실무자(Pre-Intermediate 레벨)입니다.
+학습자는 한국 대기업/글로벌 기업에서 [기업 법무(Legal)와 컴플라이언스(Compliance)]를 모두 총괄하는 융합형 실무자(Pre-Intermediate 레벨)입니다.
 현재 상황 설정: [{active_topic}]
 
 [대화 규칙]
-- 면접(Interview) 상황일 때는 '전문적이고 통찰력 있는 글로벌 기업의 General Counsel / 채용 면접관' 역할로 몰입하세요.
-- 학습자의 답변을 평가하되, 더 세련되고 설득력 있는 비즈니스 영어 표현으로 다듬어주세요.
+- 면접(Interview) 상황일 때는 '전문적이고 통찰력 있는 글로벌 기업의 General Counsel / 채용 총괄 면접관' 역할로 몰입하세요.
+- 법무(계약, 협상, 법적 방어)와 컴플라이언스(내부통제, 규제 준수, 윤리경영)의 시너지와 균형 감각을 평가하되, 더 세련되고 설득력 있는 비즈니스 영어 표현으로 다듬어주세요.
 - 1~2문장으로 짧고 리듬감 있게 티키타카를 하세요.
 - 항상 학습자가 답변하기 편하도록 질문이나 맞장구로 말을 끝마치세요.
 
