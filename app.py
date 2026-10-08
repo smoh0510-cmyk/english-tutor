@@ -145,4 +145,113 @@ if not api_key:
     st.error("Streamlit Secrets에 GEMINI_API_KEY를 등록하세요.")
     st.stop()
 
-client = genai.Client(api_key=ap
+client = genai.Client(api_key=api_key)
+CANDIDATE_MODELS = ["gemini-3.5-flash-lite", "gemini-3.8-flash", "gemini-3.7-flash"]
+
+system_instruction = f"""
+당신은 센스 있고 유쾌한 30대 미국인 튜터/대화 상대 'Alex'입니다.
+학습자는 Pre-Intermediate 레벨의 한국인입니다.
+현재 상황 설정: [{active_topic}]
+
+[규칙]
+- 현재 상황의 역할(의사/약사, 입국심사관, 회의 주최자, 네트워킹 참가자, 튜터, 바리스타 등)에 몰입하세요.
+- 1~2문장으로 짧고 유쾌하게 티키타카를 하세요.
+- 미국인들이 일상에서 쓰는 자연스러운 구어체와 슬랭/관용구를 적극 활용하세요.
+- 항상 학습자가 답변하기 편하도록 질문이나 맞장구로 말을 끝마치세요.
+
+[답변 형식 (반드시 준수)]
+[English]
+(알렉스의 자연스러운 미국 일상 영어 1~2문장)
+
+[한글 해석]
+(위 영어 문장의 자연스러운 한국어 번역)
+
+[💡 Alex의 교정 팁]
+(학습자가 한 말을 더 세련된 미국식 표현으로 다듬은 1문장 및 칭찬)
+
+[🎯 이렇게 대답해 보세요]
+(학습자가 바로 써먹을 수 있는 추천 답변 1~2문장과 한국어 뜻을 반드시 괄호 안에 병기)
+"""
+
+# 메시지 초기 로드 (동일 주제인 경우에만 이전 대화 복원, 아니면 첫인사)
+if "messages" not in st.session_state or len(st.session_state.messages) == 0:
+    saved_data = load_saved_data()
+    if saved_data.get("topic") == active_topic and len(saved_data.get("messages", [])) > 0:
+        st.session_state.messages = saved_data["messages"]
+    else:
+        first_msg = get_first_message(active_topic)
+        st.session_state.messages = [{"role": "assistant", "content": first_msg}]
+        save_current_data(active_topic, st.session_state.messages)
+
+# 메시지 렌더링
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        text = msg["content"]
+        if msg["role"] == "assistant" and "[English]" in text:
+            en_part = text.split("[한글 해석]")[0].replace("[English]", "").strip()
+            kr_part, tip_part, hint_part = "", "", ""
+
+            try:
+                if "[한글 해석]" in text:
+                    kr_part = text.split("[한글 해석]")[1].split("[💡 Alex의 교정 팁]")[0].strip()
+                if "[💡 Alex의 교정 팁]" in text:
+                    tip_part = text.split("[💡 Alex의 교정 팁]")[1].split("[🎯 이렇게 대답해 보세요]")[0].strip()
+                if "[🎯 이렇게 대답해 보세요]" in text:
+                    hint_part = text.split("[🎯 이렇게 대답해 보세요]")[1].strip()
+            except Exception:
+                pass
+
+            st.write(f"### {en_part}")
+
+            try:
+                audio_bytes = text_to_speech(en_part)
+                st.audio(audio_bytes, format="audio/mp3")
+            except Exception:
+                pass
+
+            if kr_part:
+                st.markdown(f'<div class="kr-box">🇰🇷 <b>해석:</b> {kr_part}</div>', unsafe_allow_html=True)
+            if tip_part:
+                st.markdown(f'<div class="tip-box">💡 <b>Alex의 교정 팁:</b> {tip_part}</div>', unsafe_allow_html=True)
+            if hint_part:
+                with st.expander("🎯 뭐라고 답할지 막힐 때? (답변 힌트 보기)"):
+                    st.markdown(f'<div class="hint-box">{hint_part}</div>', unsafe_allow_html=True)
+        else:
+            st.write(text)
+
+# 사용자 입력 처리
+if prompt := st.chat_input("영어로 편하게 말해보세요 (키보드 마이크 추천)..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    save_current_data(active_topic, st.session_state.messages)
+    with st.chat_message("user"):
+        st.write(prompt)
+
+    with st.chat_message("assistant"):
+        history = []
+        for m in st.session_state.messages:
+            r = "user" if m["role"] == "user" else "model"
+            history.append({"role": r, "parts": [{"text": m["content"]}]})
+
+        reply = ""
+        for model_name in CANDIDATE_MODELS:
+            try:
+                res = client.models.generate_content(
+                    model=model_name,
+                    contents=history,
+                    config=types.GenerateContentConfig(
+                        system_instruction=system_instruction,
+                        temperature=0.8
+                    )
+                )
+                reply = res.text
+                break
+            except Exception:
+                time.sleep(0.5)
+                continue
+
+        if not reply:
+            reply = "[English]\nSorry, could you say that again?\n[한글 해석]\n미안해요, 한 번만 다시 말씀해 주시겠어요?"
+
+        st.session_state.messages.append({"role": "assistant", "content": reply})
+        save_current_data(active_topic, st.session_state.messages)
+        st.rerun()
