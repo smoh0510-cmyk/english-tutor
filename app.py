@@ -136,24 +136,32 @@ system_instruction = f"""
 (학습자가 바로 써먹을 수 있는 추천 답변 1~2문장과 한국어 뜻을 반드시 괄호 안에 병기)
 """
 
-# ★ 핵심 기능: 매번 완전히 새로운 첫 인사를 AI가 동적으로 생성!
+# ★ 완전히 개선된 상황별 밀착 첫 대사 생성 함수
 def generate_fresh_greeting(topic_name):
     prompt = f"""
-    상황 설정: [{topic_name}]
-    당신은 센스 있는 30대 미국인 튜터 Alex입니다.
-    이 상황에 딱 어울리는 자연스럽고 신선한 첫 인사를 1~2문장으로 건네세요.
-    (매번 뻔한 첫마디 대신, 요일, 시간대, 날씨, 에너지 레벨, 소소한 근황 등 다양한 각도로 매번 다르게 말을 걸어주세요.)
-    만약 '[수업]' 관련 주제라면 절대 어려운 업무 이야기는 하지 마세요.
+    현재 선택된 주제: [{topic_name}]
 
-    반드시 아래 출력 형식을 엄격히 지켜주세요:
+    당신은 30대 미국인 Alex입니다.
+    선택된 [{topic_name}]의 **구체적인 상황에 100% 밀착된 첫 대사**를 1~2문장으로 건네세요.
+
+    ⚠️ 절대 금지 및 주의사항:
+    - 무조건 "Happy Friday eve"나 "How's your energy level" 같은 뻔한 요일 안부만 앵무새처럼 반복하는 것을 엄격히 금지합니다!
+    - 반드시 선택된 주제의 '진짜 상황'으로 즉시 시작하세요:
+      * '🙋 수업 중 질문 & 다시 말해달라고 요청하기' 주제 ➔ "좋아요, 오늘 수업 대화문을 볼 텐데 제가 말이 빠르거나 안 들리면 언제든 손들고 멈춰주세요, 알겠죠?"처럼 학생이 질문/요청을 연습할 수 있는 상황 조성.
+      * '🎯 뉘앙스 차이 질문 & 수업 피드백' 주제 ➔ "반가워요! 평소에 미묘하게 헷갈렸던 영어 단어나 오늘 집중적으로 교정받고 싶은 표현이 있나요?"처럼 질문 유도.
+      * '☕ 수업 전 5분 스몰토크' 주제 ➔ 오늘 마신 커피, 퇴근길, 가벼운 날씨 수다 등으로 가볍게 시작.
+      * '면접' 관련 주제 ➔ 면접관으로서 해당 면접 질문을 직접 던지며 시작.
+      * '카페 주문' 주제 ➔ 바리스타로서 주문을 물어보며 시작.
+
+    반드시 아래 출력 형식을 지키세요:
     [English]
-    (첫 대사 1~2문장)
+    (상황에 100% 밀착된 첫 대사 1~2문장)
 
     [한글 해석]
     (자연스러운 한국어 번역)
 
     [💡 Alex의 교정 팁]
-    (이 첫 대사에 답할 때 유용한 팁이나 자연스러운 리액션 표현 1문장)
+    (이 상황에서 유용한 리액션/표현 팁 1문장)
 
     [🎯 이렇게 대답해 보세요]
     (학습자가 바로 써먹을 수 있는 추천 답변 1~2문장과 한국어 뜻을 반드시 괄호 안에 병기)
@@ -165,16 +173,16 @@ def generate_fresh_greeting(topic_name):
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     system_instruction=system_instruction,
-                    temperature=0.9 # 창의성과 다양성을 위해 temperature 상승
+                    temperature=0.85
                 )
             )
             return res.text
         except Exception:
             time.sleep(0.5)
             continue
-    return "[English]\nHey there! Great to see you! How's your day going so far?\n[한글 해석]\n안녕! 만나서 반가워요! 오늘 하루 어때요?\n[💡 Alex의 교정 팁]\n편안하게 오늘 기분을 한마디로 표현해 보세요!\n[🎯 이렇게 대답해 보세요]\n• Pretty good, thanks! (꽤 좋아요, 감사해요!)"
+    return "[English]\nAlright, let's get started! If you have any questions, just let me know anytime, okay?\n[한글 해석]\n좋아요, 시작해 보죠! 질문이 있으시면 언제든 편하게 말씀해 주세요, 알겠죠?\n[💡 Alex의 교정 팁]\n수업 중 질문할 준비가 됐다는 신호를 보내보세요!\n[🎯 이렇게 대답해 보세요]\n• Sounds good, I'm ready! (좋아요, 준비됐어요!)"
 
-# 주제 변경 감지 시 즉시 새로운 첫 대사 동적 생성
+# 주제 변경 즉시 새 대화 생성
 if "current_topic" not in st.session_state:
     st.session_state.current_topic = active_topic
 
@@ -205,7 +213,6 @@ if "messages" in st.session_state and len(st.session_state.messages) > 1:
         mime="text/plain"
     )
 
-# 초기화 버튼을 누르면 새로운 인사말로 리셋!
 if st.sidebar.button("🔄 새로운 대화 시작하기"):
     with st.spinner("Alex가 새로운 대화를 시작합니다..."):
         first_msg = generate_fresh_greeting(active_topic)
@@ -216,7 +223,7 @@ if st.sidebar.button("🔄 새로운 대화 시작하기"):
 st.title("🇺🇸 Tutor Alex")
 st.caption(f"현재 상황: **{active_topic}**")
 
-# 초기 로딩 시에도 신선한 인사 생성
+# 초기 로딩 시에도 해당 상황에 맞는 인사 생성
 if "messages" not in st.session_state or len(st.session_state.messages) == 0:
     saved_data = load_saved_data()
     if isinstance(saved_data, dict) and saved_data.get("topic") == active_topic and len(saved_data.get("messages", [])) > 0:
