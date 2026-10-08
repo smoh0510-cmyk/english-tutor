@@ -1,11 +1,21 @@
 import streamlit as st
 import time
+import io
+from gtts import gTTS
 from google import genai
 from google.genai import types
 
 st.set_page_config(page_title="Tutor Alex", page_icon="🇺🇸", layout="centered")
 
-# 모바일 전용 스타일
+# 음성 생성 캐싱 (반복 재생 시 렉 방지)
+@st.cache_data
+def text_to_speech(text):
+    tts = gTTS(text=text, lang="en", tld="com")
+    sound_file = io.BytesIO()
+    tts.write_to_fp(sound_file)
+    return sound_file.getvalue()
+
+# 모바일 UI 스타일
 st.markdown("""
 <style>
     .kr-box { background-color: rgba(56, 189, 248, 0.15); border-left: 3px solid #38bdf8; padding: 10px 14px; border-radius: 8px; margin: 8px 0; font-size: 14px; color: #bae6fd; }
@@ -16,7 +26,7 @@ st.markdown("""
 st.title("🇺🇸 Tutor Alex")
 st.caption("1:1 일상 회화 & 스몰토크 튜터 (Pre-Intermediate)")
 
-# API 키 가져오기 (비밀 금고에서 로드)
+# API 키 가져오기
 api_key = st.secrets.get("GEMINI_API_KEY", "")
 if not api_key:
     st.error("API 키가 설정되지 않았습니다. Streamlit Secrets에 GEMINI_API_KEY를 등록하세요.")
@@ -65,6 +75,14 @@ for msg in st.session_state.messages:
                     kr_part = after_kr.strip()
             
             st.write(f"**{en_part}**")
+            
+            # 🔊 원어민 음성 플레이어 출력 (영어만 발음)
+            try:
+                audio_bytes = text_to_speech(en_part)
+                st.audio(audio_bytes, format="audio/mp3")
+            except Exception:
+                pass
+
             if kr_part:
                 st.markdown(f'<div class="kr-box">🇰🇷 <b>해석:</b> {kr_part}</div>', unsafe_allow_html=True)
             if tip_part:
@@ -104,6 +122,9 @@ if prompt := st.chat_input("영어로 편하게 말해보세요..."):
 
         if not reply:
             reply = "[English]\nSorry, can you say that again?\n[한글 해석]\n미안해요, 다시 한 번 말씀해 줄래요?"
+
+        st.session_state.messages.append({"role": "assistant", "content": reply})
+        st.rerun()
 
         st.session_state.messages.append({"role": "assistant", "content": reply})
         st.rerun()
