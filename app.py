@@ -11,12 +11,15 @@ st.set_page_config(page_title="Tutor Alex", page_icon="🇺🇸", layout="center
 
 HISTORY_FILE = "chat_history.json"
 
-# 주제별 대화 기록 로드 및 저장 함수
+# 이전 버전 파일 호환성 보장 로드 함수
 def load_saved_data():
     if os.path.exists(HISTORY_FILE):
         try:
             with open(HISTORY_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
+                data = json.load(f)
+                # 딕셔너리 형태일 때만 정상 반환 (옛날 리스트 형태는 무시)
+                if isinstance(data, dict):
+                    return data
         except Exception:
             pass
     return {}
@@ -93,12 +96,11 @@ if selected_topic == "✨ 내가 원하는 주제 직접 입력하기":
     custom_input = st.sidebar.text_input("원하는 상황을 입력하세요:", "예: 해외 출장 비행기 옆자리 대화")
     active_topic = f"자유 주제: {custom_input}"
 
-# 기본 첫 대사 가져오기 함수
 def get_first_message(topic_name):
     default_greeting = f"[English]\nHey! I'm ready to chat about [{topic_name}]. What's on your mind?\n[한글 해석]\n안녕! [{topic_name}]에 대해 이야기할 준비가 됐어요. 오늘 무슨 이야기 나누고 싶어요?\n[💡 Alex의 교정 팁]\n자유 주제인 만큼 문법 고민 없이 편안하게 생각나는 단어부터 던져보세요!\n[🎯 이렇게 대답해 보세요]\n• Let's talk about it! (어디 한번 이야기해 봐요!)\n• Actually, I had an interesting experience recently. (사실 최근에 재미있는 경험이 있었어요.)"
     return INITIAL_GREETINGS.get(topic_name, default_greeting)
 
-# ★ 핵심 수정 1: 주제 변경 감지 시 즉시 해당 주제의 새 대사로 갱신
+# 주제 변경 즉시 새 대화로 갱신
 if "current_topic" not in st.session_state:
     st.session_state.current_topic = active_topic
 
@@ -109,7 +111,6 @@ if st.session_state.current_topic != active_topic:
     save_current_data(active_topic, st.session_state.messages)
     st.rerun()
 
-# 복습 노트 생성 함수
 def generate_review_text(messages):
     lines = [f"=== Tutor Alex 영어 학습 복습 노트 ({active_topic}) ===\n"]
     for m in messages:
@@ -129,7 +130,6 @@ if "messages" in st.session_state and len(st.session_state.messages) > 1:
         mime="text/plain"
     )
 
-# ★ 핵심 수정 2: 초기화 시 빈 화면이 아니라 현재 주제의 첫인사로 깔끔하게 리셋
 if st.sidebar.button("🗑️ 대화 기록 초기화 (새 대화)"):
     first_msg = get_first_message(active_topic)
     st.session_state.messages = [{"role": "assistant", "content": first_msg}]
@@ -139,7 +139,7 @@ if st.sidebar.button("🗑️ 대화 기록 초기화 (새 대화)"):
 st.title("🇺🇸 Tutor Alex")
 st.caption(f"현재 상황: **{active_topic}**")
 
-# API 키 확인
+# API 키
 api_key = st.secrets.get("GEMINI_API_KEY", "")
 if not api_key:
     st.error("Streamlit Secrets에 GEMINI_API_KEY를 등록하세요.")
@@ -173,17 +173,18 @@ system_instruction = f"""
 (학습자가 바로 써먹을 수 있는 추천 답변 1~2문장과 한국어 뜻을 반드시 괄호 안에 병기)
 """
 
-# 메시지 초기 로드 (동일 주제인 경우에만 이전 대화 복원, 아니면 첫인사)
+# 메시지 로드 (안전성 강화)
 if "messages" not in st.session_state or len(st.session_state.messages) == 0:
     saved_data = load_saved_data()
-    if saved_data.get("topic") == active_topic and len(saved_data.get("messages", [])) > 0:
+    # saved_data가 dict 형태이고 현재 주제와 일치할 때만 복원
+    if isinstance(saved_data, dict) and saved_data.get("topic") == active_topic and len(saved_data.get("messages", [])) > 0:
         st.session_state.messages = saved_data["messages"]
     else:
         first_msg = get_first_message(active_topic)
         st.session_state.messages = [{"role": "assistant", "content": first_msg}]
         save_current_data(active_topic, st.session_state.messages)
 
-# 메시지 렌더링
+# 메시지 출력
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         text = msg["content"]
