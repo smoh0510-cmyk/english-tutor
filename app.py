@@ -11,20 +11,21 @@ st.set_page_config(page_title="Tutor Alex", page_icon="🇺🇸", layout="center
 
 HISTORY_FILE = "chat_history.json"
 
-# 대화 기록 불러오기 및 저장 함수
-def load_saved_messages():
+# 주제별 대화 기록 로드 및 저장 함수
+def load_saved_data():
     if os.path.exists(HISTORY_FILE):
         try:
             with open(HISTORY_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
         except Exception:
             pass
-    return None
+    return {}
 
-def save_current_messages(messages):
+def save_current_data(topic, messages):
     try:
+        data = {"topic": topic, "messages": messages}
         with open(HISTORY_FILE, "w", encoding="utf-8") as f:
-            json.dump(messages, f, ensure_ascii=False, indent=2)
+            json.dump(data, f, ensure_ascii=False, indent=2)
     except Exception:
         pass
 
@@ -64,77 +65,6 @@ TOPICS = [
     "✨ 내가 원하는 주제 직접 입력하기"
 ]
 
-st.sidebar.title("⚙️ 학습 설정")
-selected_topic = st.sidebar.selectbox("대화 주제를 선택하세요:", TOPICS)
-
-active_topic = selected_topic
-if selected_topic == "✨ 내가 원하는 주제 직접 입력하기":
-    custom_input = st.sidebar.text_input("원하는 상황을 입력하세요:", "예: 해외 출장 비행기 옆자리 대화")
-    active_topic = f"자유 주제: {custom_input}"
-
-# 대화 내용 다운로드용 텍스트 생성
-def generate_review_text(messages):
-    lines = [f"=== Tutor Alex 영어 학습 복습 노트 ({active_topic}) ===\n"]
-    for m in messages:
-        role = "나(You)" if m["role"] == "user" else "알렉스(Alex)"
-        lines.append(f"[{role}]:\n{m['content']}\n" + "-"*40)
-    return "\n".join(lines)
-
-# 사이드바 버튼들
-st.sidebar.markdown("---")
-st.sidebar.subheader("💾 학습 기록 관리")
-
-if "messages" in st.session_state and len(st.session_state.messages) > 1:
-    review_data = generate_review_text(st.session_state.messages)
-    st.sidebar.download_button(
-        label="📥 오늘 대화 & 팁 저장하기",
-        data=review_data,
-        file_name="today_english_lesson.txt",
-        mime="text/plain"
-    )
-
-if st.sidebar.button("🗑️ 대화 기록 초기화 (새 대화)"):
-    st.session_state.messages = []
-    save_current_messages([])
-    st.rerun()
-
-st.title("🇺🇸 Tutor Alex")
-st.caption(f"현재 상황: **{active_topic}**")
-
-# API 키
-api_key = st.secrets.get("GEMINI_API_KEY", "")
-if not api_key:
-    st.error("Streamlit Secrets에 GEMINI_API_KEY를 등록하세요.")
-    st.stop()
-
-client = genai.Client(api_key=api_key)
-CANDIDATE_MODELS = ["gemini-3.5-flash-lite", "gemini-3.8-flash", "gemini-3.7-flash"]
-
-system_instruction = f"""
-당신은 센스 있고 유쾌한 30대 미국인 튜터/대화 상대 'Alex'입니다.
-학습자는 Pre-Intermediate 레벨의 한국인입니다.
-현재 상황 설정: [{active_topic}]
-
-[규칙]
-- 현재 상황의 역할(의사/약사, 입국심사관, 회의 주최자, 네트워킹 참가자, 튜터, 바리스타 등)에 몰입하세요.
-- 1~2문장으로 짧고 유쾌하게 티키타카를 하세요.
-- 미국인들이 일상에서 쓰는 자연스러운 구어체와 슬랭/관용구를 적극 활용하세요.
-- 항상 학습자가 답변하기 편하도록 질문이나 맞장구로 말을 끝마치세요.
-
-[답변 형식 (반드시 준수)]
-[English]
-(알렉스의 자연스러운 미국 일상 영어 1~2문장)
-
-[한글 해석]
-(위 영어 문장의 자연스러운 한국어 번역)
-
-[💡 Alex의 교정 팁]
-(학습자가 한 말을 더 세련된 미국식 표현으로 다듬은 1문장 및 칭찬)
-
-[🎯 이렇게 대답해 보세요]
-(학습자가 바로 써먹을 수 있는 추천 답변 1~2문장과 한국어 뜻을 반드시 괄호 안에 병기)
-"""
-
 INITIAL_GREETINGS = {
     "📚 1:1 영어 수업 스몰토크": "[English]\nHey there! So good to see you! How's your week going? Doing anything fun lately?\n[한글 해석]\n안녕! 만나서 반가워요! 이번 주 어떻게 보내고 있어요? 요즘 재미있는 일 있었어요?\n[💡 Alex의 교정 팁]\n수업 시작할 때 \"How's your week going?\"이라고 되물어보면 대화가 아주 자연스러워져요!\n[🎯 이렇게 대답해 보세요]\n• Pretty good, just surviving on coffee! (꽤 좋아요, 커피 힘으로 버티는 중이에요!)\n• Not much, just took it easy this week. (별거 없어요, 이번 주는 그냥 편하게 쉬었어요.)",
     "🍿 주말 계획 & 넷플릭스/취미 수다": "[English]\nTGIF! Any big plans for the weekend, or are you just gonna Netflix and chill?\n[한글 해석]\n드디어 불금이네요! 이번 주말에 특별한 계획 있어요, 아니면 집에서 넷플릭스 보며 쉴 건가요?\n[💡 Alex의 교정 팁]\n\"TGIF\"는 'Thank God It's Friday(불금이다!)'의 흔한 슬랭이에요!\n[🎯 이렇게 대답해 보세요]\n• Definitely catching up on some sleep! (무조건 밀린 잠부터 푹 자려고요!)\n• I'm planning to binge-watch a new series. (넷플릭스 신작 몰아볼 계획이에요.)",
@@ -155,87 +85,64 @@ INITIAL_GREETINGS = {
     "⚖️ 컴플라이언스 미팅 전 비즈니스 스몰토크": "[English]\nMorning! Thanks for jumping on early. How's everything on your end before we dive in?\n[한글 해석]\n좋은 아침이에요! 일찍 접속해 주셔서 감사해요. 안건 들어가기 전에 그쪽 상황은 좀 어떠세요?\n[💡 Alex의 교정 팁]\n미팅 시작 전 \"How's everything on your end?\"는 비즈니스 스몰토크의 정석입니다.\n[🎯 이렇게 대답해 보세요]\n• Can't complain! Just wrapped up the preliminary review. (더할 나위 없죠! 방금 사전 검토 끝냈어요.)\n• Pretty hectic, but ready when you are! (꽤 정신없지만, 전 준비됐습니다!)"
 }
 
-default_greeting = f"[English]\nHey! I'm ready to chat about [{active_topic}]. What's on your mind?\n[한글 해석]\n안녕! [{active_topic}]에 대해 이야기할 준비가 됐어요. 오늘 무슨 이야기 나누고 싶어요?\n[💡 Alex의 교정 팁]\n자유 주제인 만큼 문법 고민 없이 편안하게 생각나는 단어부터 던져보세요!\n[🎯 이렇게 대답해 보세요]\n• Let's talk about it! (어디 한번 이야기해 봐요!)\n• Actually, I had an interesting experience recently. (사실 최근에 재미있는 경험이 있었어요.)"
+st.sidebar.title("⚙️ 학습 설정")
+selected_topic = st.sidebar.selectbox("대화 주제를 선택하세요:", TOPICS)
 
-# 저장된 대화가 있으면 우선 로드, 없으면 초기 인사 설정
-if "messages" not in st.session_state:
-    saved_history = load_saved_messages()
-    if saved_history and len(saved_history) > 0:
-        st.session_state.messages = saved_history
-    else:
-        st.session_state.messages = [
-            {"role": "assistant", "content": INITIAL_GREETINGS.get(selected_topic, default_greeting)}
-        ]
+active_topic = selected_topic
+if selected_topic == "✨ 내가 원하는 주제 직접 입력하기":
+    custom_input = st.sidebar.text_input("원하는 상황을 입력하세요:", "예: 해외 출장 비행기 옆자리 대화")
+    active_topic = f"자유 주제: {custom_input}"
 
-# 메시지 출력
-for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]):
-        text = msg["content"]
-        if msg["role"] == "assistant" and "[English]" in text:
-            en_part = text.split("[한글 해석]")[0].replace("[English]", "").strip()
-            kr_part, tip_part, hint_part = "", "", ""
+# 기본 첫 대사 가져오기 함수
+def get_first_message(topic_name):
+    default_greeting = f"[English]\nHey! I'm ready to chat about [{topic_name}]. What's on your mind?\n[한글 해석]\n안녕! [{topic_name}]에 대해 이야기할 준비가 됐어요. 오늘 무슨 이야기 나누고 싶어요?\n[💡 Alex의 교정 팁]\n자유 주제인 만큼 문법 고민 없이 편안하게 생각나는 단어부터 던져보세요!\n[🎯 이렇게 대답해 보세요]\n• Let's talk about it! (어디 한번 이야기해 봐요!)\n• Actually, I had an interesting experience recently. (사실 최근에 재미있는 경험이 있었어요.)"
+    return INITIAL_GREETINGS.get(topic_name, default_greeting)
 
-            try:
-                if "[한글 해석]" in text:
-                    kr_part = text.split("[한글 해석]")[1].split("[💡 Alex의 교정 팁]")[0].strip()
-                if "[💡 Alex의 교정 팁]" in text:
-                    tip_part = text.split("[💡 Alex의 교정 팁]")[1].split("[🎯 이렇게 대답해 보세요]")[0].strip()
-                if "[🎯 이렇게 대답해 보세요]" in text:
-                    hint_part = text.split("[🎯 이렇게 대답해 보세요]")[1].strip()
-            except Exception:
-                pass
+# ★ 핵심 수정 1: 주제 변경 감지 시 즉시 해당 주제의 새 대사로 갱신
+if "current_topic" not in st.session_state:
+    st.session_state.current_topic = active_topic
 
-            st.write(f"### {en_part}")
+if st.session_state.current_topic != active_topic:
+    st.session_state.current_topic = active_topic
+    first_msg = get_first_message(active_topic)
+    st.session_state.messages = [{"role": "assistant", "content": first_msg}]
+    save_current_data(active_topic, st.session_state.messages)
+    st.rerun()
 
-            try:
-                audio_bytes = text_to_speech(en_part)
-                st.audio(audio_bytes, format="audio/mp3")
-            except Exception:
-                pass
+# 복습 노트 생성 함수
+def generate_review_text(messages):
+    lines = [f"=== Tutor Alex 영어 학습 복습 노트 ({active_topic}) ===\n"]
+    for m in messages:
+        role = "나(You)" if m["role"] == "user" else "알렉스(Alex)"
+        lines.append(f"[{role}]:\n{m['content']}\n" + "-"*40)
+    return "\n".join(lines)
 
-            if kr_part:
-                st.markdown(f'<div class="kr-box">🇰🇷 <b>해석:</b> {kr_part}</div>', unsafe_allow_html=True)
-            if tip_part:
-                st.markdown(f'<div class="tip-box">💡 <b>Alex의 교정 팁:</b> {tip_part}</div>', unsafe_allow_html=True)
-            if hint_part:
-                with st.expander("🎯 뭐라고 답할지 막힐 때? (답변 힌트 보기)"):
-                    st.markdown(f'<div class="hint-box">{hint_part}</div>', unsafe_allow_html=True)
-        else:
-            st.write(text)
+st.sidebar.markdown("---")
+st.sidebar.subheader("💾 학습 기록 관리")
 
-# 사용자 입력 처리
-if prompt := st.chat_input("영어로 편하게 말해보세요 (키보드 마이크 추천)..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    save_current_messages(st.session_state.messages)
-    with st.chat_message("user"):
-        st.write(prompt)
+if "messages" in st.session_state and len(st.session_state.messages) > 1:
+    review_data = generate_review_text(st.session_state.messages)
+    st.sidebar.download_button(
+        label="📥 오늘 대화 & 팁 저장하기",
+        data=review_data,
+        file_name="today_english_lesson.txt",
+        mime="text/plain"
+    )
 
-    with st.chat_message("assistant"):
-        history = []
-        for m in st.session_state.messages:
-            r = "user" if m["role"] == "user" else "model"
-            history.append({"role": r, "parts": [{"text": m["content"]}]})
+# ★ 핵심 수정 2: 초기화 시 빈 화면이 아니라 현재 주제의 첫인사로 깔끔하게 리셋
+if st.sidebar.button("🗑️ 대화 기록 초기화 (새 대화)"):
+    first_msg = get_first_message(active_topic)
+    st.session_state.messages = [{"role": "assistant", "content": first_msg}]
+    save_current_data(active_topic, st.session_state.messages)
+    st.rerun()
 
-        reply = ""
-        for model_name in CANDIDATE_MODELS:
-            try:
-                res = client.models.generate_content(
-                    model=model_name,
-                    contents=history,
-                    config=types.GenerateContentConfig(
-                        system_instruction=system_instruction,
-                        temperature=0.8
-                    )
-                )
-                reply = res.text
-                break
-            except Exception:
-                time.sleep(0.5)
-                continue
+st.title("🇺🇸 Tutor Alex")
+st.caption(f"현재 상황: **{active_topic}**")
 
-        if not reply:
-            reply = "[English]\nSorry, could you say that again?\n[한글 해석]\n미안해요, 한 번만 다시 말씀해 주시겠어요?"
+# API 키 확인
+api_key = st.secrets.get("GEMINI_API_KEY", "")
+if not api_key:
+    st.error("Streamlit Secrets에 GEMINI_API_KEY를 등록하세요.")
+    st.stop()
 
-        st.session_state.messages.append({"role": "assistant", "content": reply})
-        save_current_messages(st.session_state.messages)
-        st.rerun()
+client = genai.Client(api_key=ap
